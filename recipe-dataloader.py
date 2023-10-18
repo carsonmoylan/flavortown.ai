@@ -1,0 +1,1 @@
+# A script to load data from text files to aws Dynamo DB
