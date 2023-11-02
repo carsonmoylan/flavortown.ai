@@ -14,14 +14,25 @@ table_recipes_by_ingredients = 'recipes_by_ingredients'
 table_recipe_details = 'recipe_details'
 
 table_ingredients = 'ingredients'
-ingredient_name_to_query = 'Buckwheat'  # Replace with the ingredient name you want to query
 
 table = dynamodb.Table(table_ingredients)
 
-fe = Attr('ingredient_name').eq("Buckwheat");
+# Assign this to list of ingredients to get the ids
+# Use the ids to find recipes
+ingredient_names = ["Buckwheat", "Rice", "Quinoa"]
+
+# Create a filter expression to check if the ingredient_name is in the list
+fe = Attr('ingredient_name').is_in(ingredient_names)
+#fe = Attr('ingredient_name').eq("Buckwheat");
 
 response = table.scan(
         FilterExpression=fe        
     )
+
+ingredient_ids = []
 for item in response['Items']:
   print(item)
+  ingredient_ids.append(int(item['entity_id']))
+
+print(ingredient_ids)
+
