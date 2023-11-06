@@ -19,26 +19,26 @@ recipe_integredients_aliases_file = os.path.join(current_dir, 'CulinaryDB\\04_Re
 included_sources = ['FOOD_NETWORK']
 included_recipe_ids = []
 
-# UPLOADED
-# Populate recipe_details table
-with open(recipe_details_file, 'r', encoding='utf-8', newline='') as csv_file:
-  count = 0
-  table_name = 'recipe_details'
-  reader = csv.reader(csv_file)
-  for row in reader:
-    count += 1
-    data = {
-            'recipe_id': {'N': row[0]},
-            'title': {'S': row[1]},
-            'source': {'S': row[2]},
-            'cuisine': {'S': row[3].replace('Misc.: ', '')}
-        }
-    if (count == 1):
-      continue
-    if row[2] in included_sources:
-      included_recipe_ids.append(int(row[0]))
-      #print(data)
-      #response = dynamodb.put_item(TableName=table_name, Item=data)
+# # UPLOADED
+# # Populate recipe_details table
+# with open(recipe_details_file, 'r', encoding='utf-8', newline='') as csv_file:
+#   count = 0
+#   table_name = 'recipe_details'
+#   reader = csv.reader(csv_file)
+#   for row in reader:
+#     count += 1
+#     data = {
+#             'recipe_id': {'N': row[0]},
+#             'title': {'S': row[1]},
+#             'source': {'S': row[2]},
+#             'cuisine': {'S': row[3].replace('Misc.: ', '')}
+#         }
+#     if (count == 1):
+#       continue
+#     if row[2] in included_sources:
+#       included_recipe_ids.append(int(row[0]))
+#       #print(data)
+#       #response = dynamodb.put_item(TableName=table_name, Item=data)
 
 
 # UPLOADED
@@ -82,34 +82,62 @@ with open(recipe_details_file, 'r', encoding='utf-8', newline='') as csv_file:
 #     response = dynamodb.put_item(TableName=table_name, Item=data)
 
 
-print(len(included_recipe_ids))
-times = []
-# NOT UPLOADED
-last_recipe_id = None
-with open(recipe_integredients_aliases_file, 'r', encoding='utf-8') as csv_file:
-  count = 0
-  table_name = 'recipes_by_ingredients'
-  reader = csv.reader(csv_file)
-  st = time.time()
-  for row in reader:
-    count += 1
-    data = {
-      'id': {'N': str(count-1)},
-      'recipe_id': {'N': row[0]},
-      'ingredient_name': {'S': row[1]},
-      'aliased_ingredient_name': {'S': row[2].rstrip(' ')},
-      'entity_id': {'N': row[3]}
-    }
-    if (count == 1):
-      continue
-    if int(row[0]) in included_recipe_ids:
-      #print(data)
-      response = dynamodb.put_item(TableName=table_name, Item=data)
-      current_recipe_id = int(row[0])
-      if last_recipe_id is not None and current_recipe_id != last_recipe_id:
-        print('Time for recipe ', last_recipe_id, ':', time.time() - st)
-        times.append(time.time()-st)
-        print('Avg recipe time: ', sum(times)/len(times))
-        st = time.time()
-      last_recipe_id = current_recipe_id
+# print(len(included_recipe_ids))
+# times = []
+# # UPLOADED
+# last_recipe_id = None
+# with open(recipe_integredients_aliases_file, 'r', encoding='utf-8') as csv_file:
+#   count = 0
+#   table_name = 'recipes_by_ingredients'
+#   reader = csv.reader(csv_file)
+#   st = time.time()
+#   for row in reader:
+#     count += 1
+#     data = {
+#       'id': {'N': str(count-1)},
+#       'recipe_id': {'N': row[0]},
+#       'ingredient_name': {'S': row[1]},
+#       'aliased_ingredient_name': {'S': row[2].rstrip(' ')},
+#       'entity_id': {'N': row[3]}
+#     }
+#     if (count == 1):
+#       continue
+#     if int(row[0]) in included_recipe_ids:
+#       #print(data)
+#       response = dynamodb.put_item(TableName=table_name, Item=data)
+#       current_recipe_id = int(row[0])
+#       if last_recipe_id is not None and current_recipe_id != last_recipe_id:
+#         print('Time for recipe ', last_recipe_id, ':', time.time() - st)
+#         times.append(time.time()-st)
+#         print('Avg recipe time: ', sum(times)/len(times))
+#         st = time.time()
+#       last_recipe_id = current_recipe_id
 
+# # IMPORT DATA TO INGREDIENTS_BY_RECIPES
+# # NOT UPLOADED
+# times = []
+# with open(recipe_integredients_aliases_file, 'r', encoding='utf-8') as csv_file:
+#   count = 0
+#   table_name = 'ingredients_by_recipes'
+#   reader = csv.reader(csv_file)
+#   st = time.time()
+#   ingredients_dict = {}
+#   for row in reader:
+#     count += 1
+#     if (count == 1):
+#       continue
+#     if int(row[0]) not in included_recipe_ids:
+#       continue
+#     ingredient_id = int(row[3])
+#     if ingredient_id not in ingredients_dict:
+#       ingredients_dict[ingredient_id] = [int(row[0])]
+#     else:
+#       ingredients_dict[ingredient_id].append(int(row[0]))
+#   for ingredient_id in ingredients_dict:
+#     data = {
+#       'ingredient_id': {'N': str(ingredient_id)},
+#       'num_recipes': {'N': str(len(ingredients_dict[ingredient_id]))},
+#       'recipe_list': {'S': str(' '.join(map(str, ingredients_dict[ingredient_id])))}
+#     }
+#     print(data)
+#     response = dynamodb.put_item(TableName=table_name, Item=data)
