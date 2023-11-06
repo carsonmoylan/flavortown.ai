@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
     <link rel="stylesheet" href="cs316A3css.css">
-    <script src="cs316A3js.js"></script>
+    <script src="script.js"></script>
 </head>
 
 <body>
@@ -15,12 +15,13 @@
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
         <p>Upload a photo of your ingredients here!
-            <button class="ui active button">
+            <label for="imageUpload" class="ui active button">
                 <i class="blind icon"></i>
                 Follow
-            </button>
+            </label>
+            <input type="file" id="imageUpload" style="display: none;" accept="image/*">
         </p>
-        <div class="ui small image">
+        <div class="ui small image" id="uploadedImageContainer">
             <svg width="300" height="300">
                 <image xlink:href="/images/wireframe/image.png" x="0" y="0" width="100%" height="100%"></image>
             </svg>
