@@ -13,6 +13,7 @@
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
         <p>Upload a photo of your ingredients here!
+            <br>
             <label for="imageUpload" class="ui active button">
                 <i class="upload icon"></i>
                 Upload
@@ -28,10 +29,13 @@
             <h3>
                 Ingredients
             </h3>
-            <div class="ui form">
-                <div class="field">
-                <textarea></textarea>
+            <div class="inputContainer">
+                <div class="ui input">
+                    <input type="text">
+                    <button class="ui compact icon button remove-input"><i class="trash icon"></i></button>
                 </div>
+                <br>
+                <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
             </div>
         </div>
         <button class="fluid ui button">
@@ -68,4 +72,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+    let inputCounter = 1; // To keep track of input IDs
+
+document.getElementById('addInput').addEventListener('click', function() {
+    const inputContainer = document.querySelector('.inputContainer');
+    const newInputField = document.createElement('div');
+    newInputField.className = 'ui input';
+    newInputField.innerHTML = `
+        <input type="text">
+        <button class="ui compact icon button remove-input" id="removeInput${inputCounter}"><i class="trash icon"></i></button>
+    `;
+    inputContainer.insertBefore(newInputField, document.getElementById('addInput'));
+
+    // Add a line break after each new text input
+    const lineBreak = document.createElement('br');
+    inputContainer.insertBefore(lineBreak, document.getElementById('addInput'));
+
+    inputCounter++; // Increment the inputCounter
+});
+
+document.querySelector('.inputContainer').addEventListener('click', function(event) {
+    if (event.target.classList.contains('remove-input')) {
+        const inputContainer = document.querySelector('.inputContainer');
+        const inputField = event.target.parentElement;
+        const lineBreak = inputField.nextElementSibling; // Get the next sibling (line break)
+
+        if (inputContainer.contains(inputField)) {
+            inputContainer.removeChild(inputField);
+        }
+        if (lineBreak) {
+            inputContainer.removeChild(lineBreak);
+        }
+    }
+});
+
+
+
 </script>
