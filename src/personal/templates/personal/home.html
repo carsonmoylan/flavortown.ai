@@ -28,7 +28,6 @@
 
         </p>
 
-
         <div class = "ui segment">
             <h3>
                 Ingredients
@@ -42,7 +41,7 @@
                 <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
             </div>
         </div>
-        <button class="fluid ui button" id="getIngredients">
+        <button class="fluid ui button" id="getIngredients" type="submit">
             <i class="bolt icon"></i>
             Generate Recipes!
         </button>
@@ -52,8 +51,9 @@
 <!-- Add a div to display ingredients -->
 <div id="displayIngredients"></div>
 
-
 <script>
+var URL = "{% url 'home' %}";
+
 document.addEventListener('DOMContentLoaded', function () {
     // Add an event listener to the file input to handle the selected image
     document.querySelector('#imageUpload').addEventListener('change', function () {
@@ -126,6 +126,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         inputFields.forEach(function(inputField) {
             ingredientsArray.push(inputField.value);
+        });
+        const csrftoken = "{{ csrf_token|escapejs }}";
+        var data = {'ingredients' : ingredientsArray};
+        $.ajax({
+            url: URL,
+            method: 'POST',
+            data: data,
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            success: function(response) {
+                // Handle the response here
+            },
         });
 
         console.log(ingredientsArray); // Log the ingredients array
