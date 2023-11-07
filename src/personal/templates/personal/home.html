@@ -12,9 +12,6 @@
         <div class="ui segment">
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
-
-        <form method="POST" action="#" enctype='multipart/form-data'> {% csrf_token %}
-            {{form.as_p}}
         <p>Upload a photo of your ingredients here!            
             <input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">
             <div class="ui small image" id="uploadedImageContainer">
@@ -41,18 +38,16 @@
                 <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
             </div>
         </div>
-        <button class="fluid ui button" id="getIngredients" type="submit">
+        <button class="fluid ui button" id="getIngredients">
             <i class="bolt icon"></i>
             Generate Recipes!
         </button>
-        </form>
     </div>
 </body>
 <!-- Add a div to display ingredients -->
 <div id="displayIngredients"></div>
 
 <script>
-var URL = "{% url 'home' %}";
 
 document.addEventListener('DOMContentLoaded', function () {
     // Add an event listener to the file input to handle the selected image
@@ -80,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
 document.addEventListener('DOMContentLoaded', function () {
     // ... Your existing code ...
 
