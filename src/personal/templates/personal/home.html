@@ -15,17 +15,15 @@
 
         <form method="POST" action="#" enctype='multipart/form-data'> {% csrf_token %}
             {{form.as_p}}
-        <p>Upload a photo of your ingredients here!
-            <br>
-            <label for="imageUpload" class="ui active button">
-                <i class="upload icon"></i>
-                Upload
-            </label>
+        <p>Upload a photo of your ingredients here!            
             <input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">
             <div class="ui small image" id="uploadedImageContainer">
-            <svg width="300" height="300">
-                <image xlink:href="/images/wireframe/image.png" x="0" y="0" width="100%" height="100%"></image>
-            </svg>
+                <div class="ui segment" style="width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
+                    <label for="imageUpload" class="ui active button">
+                        <i class="upload icon"></i>
+                        Upload
+                    </label>
+                </div>
             </div>
 
         </p>
