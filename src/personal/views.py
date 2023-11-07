@@ -17,7 +17,8 @@ def home_screen_view(request):
         #imageName = request.FILES[u'image'].name
         ingredients_data = request.POST.getlist('ingredients[]')
         print(ingredients_data)
-        getCommonRecipes.getRecRecipes(ingredients_data)
+        rec_recipes = getCommonRecipes.getRecRecipes(ingredients_data)
+        print(rec_recipes)
 
         #if form.is_valid():
             #form.save()
