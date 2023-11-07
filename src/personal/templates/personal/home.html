@@ -21,6 +21,7 @@
                 <i class="upload icon"></i>
                 Upload
             </label>
+            <input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">
             <div class="ui small image" id="uploadedImageContainer">
             <svg width="300" height="300">
                 <image xlink:href="/images/wireframe/image.png" x="0" y="0" width="100%" height="100%"></image>
@@ -28,6 +29,10 @@
             </div>
 
         </p>
+        <button type="submit" id="getIngredients" class="ui active button" value="save">Get Ingredients</button>
+        </form>
+
+
         <div class = "ui segment">
             <h3>
                 Ingredients
@@ -41,13 +46,15 @@
                 <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
             </div>
         </div>
-        <button type="submit" id="getIngredients" class="fluid ui button">
+        <button class="fluid ui button">
             <i class="bolt icon"></i>
             Generate Recipes!
         </button>
-        </form>
     </div>
 </body>
+<!-- Add a div to display ingredients -->
+<div id="displayIngredients"></div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -76,40 +83,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+document.addEventListener('DOMContentLoaded', function () {
+    // ... Your existing code ...
+
     let inputCounter = 1; // To keep track of input IDs
+    const ingredientsArray = []; // Create an array to store ingredients
 
-document.getElementById('addInput').addEventListener('click', function() {
-    const inputContainer = document.querySelector('.inputContainer');
-    const newInputField = document.createElement('div');
-    newInputField.className = 'ui input';
-    newInputField.innerHTML = `
-        <input type="text">
-        <button class="ui compact icon button remove-input" id="removeInput${inputCounter}"><i class="trash icon"></i></button>
-    `;
-    inputContainer.insertBefore(newInputField, document.getElementById('addInput'));
-
-    // Add a line break after each new text input
-    const lineBreak = document.createElement('br');
-    inputContainer.insertBefore(lineBreak, document.getElementById('addInput'));
-
-    inputCounter++; // Increment the inputCounter
-});
-
-document.querySelector('.inputContainer').addEventListener('click', function(event) {
-    if (event.target.classList.contains('remove-input')) {
+    document.getElementById('addInput').addEventListener('click', function() {
         const inputContainer = document.querySelector('.inputContainer');
-        const inputField = event.target.parentElement;
-        const lineBreak = inputField.nextElementSibling; // Get the next sibling (line break)
+        const newInputField = document.createElement('div');
+        newInputField.className = 'ui input';
+        newInputField.innerHTML = `
+            <input type="text">
+            <button class="ui compact icon button remove-input" id="removeInput${inputCounter}"><i class="trash icon"></i></button>
+        `;
+        inputContainer.insertBefore(newInputField, document.getElementById('addInput'));
 
-        if (inputContainer.contains(inputField)) {
-            inputContainer.removeChild(inputField);
+        // Add a line break after each new text input
+        const lineBreak = document.createElement('br');
+        inputContainer.insertBefore(lineBreak, document.getElementById('addInput'));
+
+        inputCounter++; // Increment the inputCounter
+    });
+
+    document.querySelector('.inputContainer').addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-input')) {
+            const inputContainer = document.querySelector('.inputContainer');
+            const inputField = event.target.parentElement;
+            const lineBreak = inputField.nextElementSibling; // Get the next sibling (line break)
+
+            if (inputContainer.contains(inputField)) {
+                inputContainer.removeChild(inputField);
+            }
+            if (lineBreak) {
+                inputContainer.removeChild(lineBreak);
+            }
         }
-        if (lineBreak) {
-            inputContainer.removeChild(lineBreak);
-        }
-    }
+    });
+
+    const displayIngredients = document.getElementById('displayIngredients'); // Create a display area
+
+    document.querySelector('.fluid.ui.button').addEventListener('click', function() {
+        const inputFields = document.querySelectorAll('.inputContainer input[type="text"]');
+        ingredientsArray.length = 0; // Clear the ingredients array
+
+        inputFields.forEach(function(inputField) {
+            ingredientsArray.push(inputField.value);
+        });
+
+        console.log(ingredientsArray); // Log the ingredients array
+        displayIngredients.textContent = ingredientsArray.join(', '); // Display the ingredients on the page
+    });
 });
-
-
-
 </script>
