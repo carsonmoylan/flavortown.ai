@@ -12,19 +12,27 @@
         <div class="ui segment">
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
+
+        <form method="POST" action="#" enctype='multipart/form-data'> {% csrf_token %}
+            {{form.as_p}}
         <p>Upload a photo of your ingredients here!
             <br>
             <label for="imageUpload" class="ui active button">
                 <i class="upload icon"></i>
                 Upload
             </label>
-            <input type="file" id="imageUpload" style="display: none;" accept="image/*">
-        </p>
-        <div class="ui small image" id="uploadedImageContainer">
+            <input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">
+            <div class="ui small image" id="uploadedImageContainer">
             <svg width="300" height="300">
                 <image xlink:href="/images/wireframe/image.png" x="0" y="0" width="100%" height="100%"></image>
             </svg>
-        </div>
+            </div>
+
+        </p>
+        <button type="submit" id="getIngredients" class="ui active button" value="save">Get Ingredients</button>
+        </form>
+
+
         <div class = "ui segment">
             <h3>
                 Ingredients
