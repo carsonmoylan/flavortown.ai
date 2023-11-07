@@ -2,6 +2,9 @@ from django.shortcuts import render
 from .forms import UploadForm
 from .imageClassification import getImageInfo
 import json
+import sys
+sys.path.append('/home/ubuntu/flavortown.ai/RecipeLoading')
+import getCommonRecipes
 
 # Create your views here.
 def home_screen_view(request):
@@ -14,6 +17,7 @@ def home_screen_view(request):
         #imageName = request.FILES[u'image'].name
         ingredients_data = request.POST.getlist('ingredients[]')
         print(ingredients_data)
+        getCommonRecipes.getRecRecipes(ingredients_data)
 
         #if form.is_valid():
             #form.save()

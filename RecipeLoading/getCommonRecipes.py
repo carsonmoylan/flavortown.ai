@@ -75,7 +75,6 @@ def getRecipeNames(recipe_ids):
 
 def getRecRecipes(ingredients):
   ingredient_ids = getIngredientIds(ingredients)
-  print('recipe ids:', getRecipeIds(ingredient_ids))
   recipe_ids = getRecipeIds(ingredient_ids)
   recipe_ids = [int(recipe_id) for recipe_id in recipe_ids]
   return getRecipeNames(recipe_ids)
