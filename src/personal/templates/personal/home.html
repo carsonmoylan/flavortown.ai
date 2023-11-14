@@ -47,12 +47,14 @@
             <i class="bolt icon"></i>
             Generate Recipes!
         </button>
+    </form>
     </div>
 </body>
 <!-- Add a div to display ingredients -->
 <div id="displayIngredients"></div>
 
 <script>
+var URL = "{% url 'home' %}";
 
 document.addEventListener('DOMContentLoaded', function () {
     // Add an event listener to the file input to handle the selected image
@@ -129,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
         inputFields.forEach(function(inputField) {
             ingredientsArray.push(inputField.value);
         });
+        console.log(ingredientsArray);
         const csrftoken = "{{ csrf_token|escapejs }}";
         var data = {'ingredients' : ingredientsArray};
         $.ajax({
