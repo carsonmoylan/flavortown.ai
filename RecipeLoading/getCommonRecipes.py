@@ -8,62 +8,80 @@ from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
 
-table_compound_ingredients = 'compound_ingredients'
-table_ingredients = 'ingredients'
-table_recipes_by_ingredients = 'recipes_by_ingredients'
-table_recipe_details = 'recipe_details'
+# test list of ingredients
 
-table_ingredients = 'ingredients'
 
-table = dynamodb.Table(table_ingredients)
 
-# Assign this to list of ingredients to get the ids
-# Use the ids to find recipes
-ingredient_names = ["Banana", "Liquid Smoke", "Pork"]
+def getIngredientIds(ingredients):
+  """
+  param: ingredient_names a list of english words for ingredients
+  return: a list of ingredient ids corresponding to the given ingredients
+  """
+  ingredient_table = dynamodb.Table('ingredients')
+  fe = Attr('ingredient_name').is_in(ingredients)
+  response = ingredient_table.scan(FilterExpression=fe)
+  ingredient_ids = []
+  for item in response['Items']:
+    ingredient_ids.append(int(item['entity_id']))
+  return ingredient_ids
 
-# Create a filter expression to check if the ingredient_name is in the list
-fe = Attr('ingredient_name').is_in(ingredient_names)
-#fe = Attr('ingredient_name').eq("Buckwheat");
-
-response = table.scan(
-        FilterExpression=fe        
-    )
-
-ingredient_ids = []
-for item in response['Items']:
-  #print(item)
-  ingredient_ids.append(int(item['entity_id']))
-
-#print(ingredient_ids)
-
-table = dynamodb.Table("ingredients_by_recipes")
-# get the rows by searching ingredient ids
-fe = Attr('ingredient_id').is_in(ingredient_ids)
-response = table.scan(
-  FilterExpression=fe
-)
-res = list()
-for item in response['Items']:
-  #print(item)
-  test = item
-  test['recipe_list'] = item['recipe_list'].split()
-  res.append(test)
-print(res)
-# sort num_recipes
-for item in res:
-  print(item['num_recipes'])
-res = sorted(res, key=lambda ingredient: int(ingredient['num_recipes']), reverse=True)
-for item in res:
-  print(item['num_recipes'])
-# go through ingredients and see if there are common recipes
-# final = list(("carson", "bart", "colin"))
 
 def clean(final, temp):
+  """
+  params: final: a list of recipe ids to dwindle down
+          temp: a list of recipe ids to check if they are in final
+  return: return the intersection of final and temp
+  """
   return [recipe for recipe in final if recipe in temp]
 
-final = res[0]['recipe_list']
-print("here", len(final))
-for i in range(1, len(res)):
-  final = clean(final, res[i]['recipe_list'])
-print(final, len(final))
-# temp = list(("colin", "tyler", "will"))
+
+def getRecipeIds(ingredient_ids):
+  """
+  params: ingredient_ids: a list of recipe_ids to see what recipes are shared with all of them
+  return: a list of recipe ids that have every ingredient given
+  """
+  table = dynamodb.Table("ingredients_by_recipes")
+  # get the rows by searching ingredient ids
+  fe = Attr('ingredient_id').is_in(ingredient_ids)  # Updated here
+  response = table.scan(FilterExpression=fe)
+  res = list()
+  for item in response['Items']:
+    test = item
+    test['recipe_list'] = item['recipe_list'].split()
+    res.append(test)
+  res = sorted(res, key=lambda ingredient: int(ingredient['num_recipes']), reverse=True)
+  final = res[0]['recipe_list']
+  for i in range(1, len(res)):
+    final = clean(final, res[i]['recipe_list'])
+  return final
+
+
+def getRecipeNames(recipe_ids):
+  """
+  params: recipe_ids: a list of recipe ids
+  return: a list of english names for each recipe
+  """
+  print(recipe_ids)
+  table = dynamodb.Table("recipe_details")
+  # get the rows by searching ingredient ids
+  fe = Attr('recipe_id').is_in(recipe_ids)
+  response = table.scan(
+    FilterExpression=fe
+  )
+  recipes = list()
+  for item in response['Items']:
+    recipes.append(item['title'].title())
+  return recipes
+
+def getRecRecipes(ingredients):
+  ingredient_ids = getIngredientIds(ingredients)
+  recipe_ids = getRecipeIds(ingredient_ids)
+  recipe_ids = [int(recipe_id) for recipe_id in recipe_ids]
+  return getRecipeNames(recipe_ids)
+
+def main():
+  ingredient_names = ["banana", "liquid smoke", "pork"]
+  print(getRecRecipes(ingredient_names))
+
+if __name__ == '__main__':
+  main()
