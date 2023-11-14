@@ -14,9 +14,9 @@
         </div>
 
         <form method="POST" action="#" enctype='multipart/form-data'> {% csrf_token %}
-            {{form.as_p}}
+            {{imageForm.as_p}}
         <p>Upload a photo of your ingredients here!            
-            <input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">
+            <!--<input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">-->
             <div class="ui small image" id="uploadedImageContainer">
                 <div class="ui segment" style="width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
                     <label for="imageUpload" class="ui active button">
@@ -34,13 +34,16 @@
             </h3>
             <div class="inputContainer">
                 <div class="ui input">
-                    <input type="text">
+                    {{ingredientForm.as_p}}
                     <button class="ui compact icon button remove-input"><i class="trash icon"></i></button>
                 </div>
                 <br>
                 <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
             </div>
         </div>
+
+        
+
         <button class="fluid ui button" id="getIngredients" type="submit">
             <i class="bolt icon"></i>
             Generate Recipes!
@@ -91,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const newInputField = document.createElement('div');
         newInputField.className = 'ui input';
         newInputField.innerHTML = `
-            <input type="text">
+            {{ingredientForm.as_p}}
             <button class="ui compact icon button remove-input" id="removeInput${inputCounter}"><i class="trash icon"></i></button>
         `;
         inputContainer.insertBefore(newInputField, document.getElementById('addInput'));
@@ -101,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         inputContainer.insertBefore(lineBreak, document.getElementById('addInput'));
 
         inputCounter++; // Increment the inputCounter
+
     });
 
     document.querySelector('.inputContainer').addEventListener('click', function(event) {

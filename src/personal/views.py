@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import UploadForm
+from .forms import ImageForm, IngredientForm
 from .imageClassification import getImageInfo
 import json
 
@@ -10,16 +10,16 @@ def home_screen_view(request):
             ingredients = request.POST['ingredients']
             print(ingredients)
 
-        #form = UploadForm(request.POST, request.FILES)
-        #imageName = request.FILES[u'image'].name
+        imageForm = ImageForm(request.POST, request.FILES)
+        imageName = request.FILES[u'image'].name
         ingredients_data = request.POST.getlist('ingredients[]')
         print(ingredients_data)
 
-        #if form.is_valid():
-            #form.save()
-            #getImageInfo(imageName)
+        if imageForm.is_valid():
+            imageForm.save()
+            getImageInfo(imageName)
     else:
-        form = UploadForm()
+        imageForm = ImageForm()
 
 
-    return render(request, "personal/home.html", {'form' : UploadForm})
+    return render(request, "personal/home.html", {'imageForm' : ImageForm, 'ingredientForm' : IngredientForm})
