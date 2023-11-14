@@ -4,3 +4,6 @@ from django.db import models
 
 class Food(models.Model):
     image = models.ImageField(upload_to='images')
+
+class Ingredients(models.Model):
+    ingredients = models.CharField(max_length=200) 
