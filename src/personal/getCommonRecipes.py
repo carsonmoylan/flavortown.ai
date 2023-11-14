@@ -32,7 +32,11 @@ def clean(final, temp):
           temp: a list of recipe ids to check if they are in final
   return: return the intersection of final and temp
   """
-  return [recipe for recipe in final if recipe in temp]
+  newList = [recipe for recipe in final if recipe in temp]
+  if len(newList) == 0:
+    return final
+  else:
+    return newList
 
 
 def getRecipeIds(ingredient_ids):
@@ -55,7 +59,7 @@ def getRecipeIds(ingredient_ids):
     final = clean(final, res[i]['recipe_list'])
   return final
 
-
+# change s.t. 
 def getRecipeNames(recipe_ids):
   """
   params: recipe_ids: a list of recipe ids
