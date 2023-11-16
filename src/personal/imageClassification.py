@@ -10,8 +10,12 @@ source = Path(settings.MEDIA_ROOT, 'images')
 
 # infer on a local image
 def getImageInfo(image):
+    classNames = set()
     imageLoc = Path(source, image)
-    print(model.predict(str(imageLoc), confidence=40, overlap=30).json())
+    predictions = model.predict(str(imageLoc), confidence=40, overlap=30).json()['predictions']
+    for prediction in predictions:
+        classNames.add(prediction["class"])
+    return classNames
 
 # visualize your prediction
 # model.predict("your_image.jpg", confidence=40, overlap=30).save("prediction.jpg")

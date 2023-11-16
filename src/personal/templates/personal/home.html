@@ -14,140 +14,23 @@
         </div>
 
         <form method="POST" action="#" enctype='multipart/form-data'> {% csrf_token %}
-            {{imageForm.as_p}}
-        <p>Upload a photo of your ingredients here!            
-            <!--<input type="file" id="imageUpload" style="display: none;" accept="image/*" name="imageUpload">-->
-            <div class="ui small image" id="uploadedImageContainer">
-                <div class="ui segment" style="width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
-                    <label for="imageUpload" class="ui active button">
-                        <i class="upload icon"></i>
-                        Upload
-                    </label>
+                {{imageForm.as_p}}
+            <p>Upload a photo of your ingredients here!            
+                <div class="ui small image" id="uploadedImageContainer">
+                    <div class="ui segment" style="width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
+                        <label for="imageUpload" class="ui active button">
+                            <i class="upload icon"></i>
+                            Upload
+                        </label>
+                    </div>
                 </div>
-            </div>
+            </p>
+            <button class="fluid ui button" id="submitPhoto" type="submit">
+                <i class="bolt icon"></i>
+                Submit photo!
+            </button>
 
-        </p>
 
-        <div class = "ui segment">
-            <h3>
-                Ingredients
-            </h3>
-            <div class="inputContainer">
-                <div class="ui input">
-                    {{ingredientForm.as_p}}
-                    <button class="ui compact icon button remove-input"><i class="trash icon"></i></button>
-                </div>
-                <br>
-                <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
-            </div>
-        </div>
-
-        <button class="fluid ui button" id="getIngredients" type="submit">
-
-            <i class="bolt icon"></i>
-            Generate Recipes!
-        </button>
-    </form>
+        </form>
     </div>
 </body>
-<!-- Add a div to display ingredients -->
-<div id="displayIngredients"></div>
-
-<script>
-var URL = "{% url 'home' %}";
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Add an event listener to the file input to handle the selected image
-    document.querySelector('#imageUpload').addEventListener('change', function () {
-        // Get the selected image file
-        const selectedImage = this.files[0];
-
-        // Reference to the target <div> where you want to display the image
-        const imageContainer = document.getElementById('uploadedImageContainer');
-
-        // Create an <img> element to display the selected image
-        const imageElement = document.createElement('img');
-        imageElement.width = 300; // Set the width to match the existing SVG
-        imageElement.height = 300; // Set the height to match the existing SVG
-
-        if (selectedImage) {
-            // Set the selected image as the source
-            imageElement.src = URL.createObjectURL(selectedImage);
-
-            // Clear the existing SVG content
-            imageContainer.innerHTML = '';
-
-            // Append the <img> element to the container
-            imageContainer.appendChild(imageElement);
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    // ... Your existing code ...
-
-    let inputCounter = 1; // To keep track of input IDs
-    const ingredientsArray = []; // Create an array to store ingredients
-
-    document.getElementById('addInput').addEventListener('click', function() {
-        const inputContainer = document.querySelector('.inputContainer');
-        const newInputField = document.createElement('div');
-        newInputField.className = 'ui input';
-        newInputField.innerHTML = `
-            {{ingredientForm.as_p}}
-            <button class="ui compact icon button remove-input" id="removeInput${inputCounter}"><i class="trash icon"></i></button>
-        `;
-        inputContainer.insertBefore(newInputField, document.getElementById('addInput'));
-
-        // Add a line break after each new text input
-        const lineBreak = document.createElement('br');
-        inputContainer.insertBefore(lineBreak, document.getElementById('addInput'));
-
-        inputCounter++; // Increment the inputCounter
-
-    });
-
-    document.querySelector('.inputContainer').addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-input')) {
-            const inputContainer = document.querySelector('.inputContainer');
-            const inputField = event.target.parentElement;
-            const lineBreak = inputField.nextElementSibling; // Get the next sibling (line break)
-
-            if (inputContainer.contains(inputField)) {
-                inputContainer.removeChild(inputField);
-            }
-            if (lineBreak) {
-                inputContainer.removeChild(lineBreak);
-            }
-        }
-    });
-
-    const displayIngredients = document.getElementById('displayIngredients'); // Create a display area
-
-    document.querySelector('.fluid.ui.button').addEventListener('click', function() {
-        const inputFields = document.querySelectorAll('.inputContainer input[type="text"]');
-        ingredientsArray.length = 0; // Clear the ingredients array
-
-        inputFields.forEach(function(inputField) {
-            ingredientsArray.push(inputField.value);
-        });
-        console.log(ingredientsArray);
-        const csrftoken = "{{ csrf_token|escapejs }}";
-        var data = {'ingredients' : ingredientsArray};
-        $.ajax({
-            url: URL,
-            method: 'POST',
-            data: data,
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            success: function(response) {
-                // Handle the response here
-            },
-        });
-
-        console.log(ingredientsArray); // Log the ingredients array
-        displayIngredients.textContent = ingredientsArray.join(', '); // Display the ingredients on the page
-    });
-});
-</script>

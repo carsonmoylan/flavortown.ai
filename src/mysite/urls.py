@@ -18,9 +18,12 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from personal.views import home_screen_view
+from personal.views import home_screen_view, display_image, display_recipes
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_screen_view, name='home'),
+    path('display/', display_image, name='display_image'),
+    path('display/<str:imageClasses>/', display_image, name='display_image_with_classes'),
+    path('recipes/', display_recipes, name='displays_recipes'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # New
