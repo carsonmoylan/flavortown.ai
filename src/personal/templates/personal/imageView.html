@@ -10,6 +10,12 @@
     <div class="ui segment">
         <h1>Welcome to FlavorTown.AI</h1>
     </div>
+
+    <button class="fluid ui button" id="goBack">
+        <i class="reply icon"></i>
+        Go Back!
+    </button>
+
     {% if uploaded_image %}
         <img src="{{ uploaded_image.image.url }}" alt="Uploaded Image" style="width: 300px; height: 300px;">
     {% else %}
@@ -27,7 +33,6 @@
     </div>
 
     <button class="fluid ui button" id="getIngredients" type="submit">
-
         <i class="bolt icon"></i>
         Generate Recipes!
     </button>
@@ -42,22 +47,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let inputCounter = 1; // To keep track of input IDs
 
+    // Decode array received from Django.
     function decodeHtmlEntities(encodedArray) {
     // Split the input string into an array
-    return encodedArray.split(',').flatMap(function (item) {
+        return encodedArray.split(',').flatMap(function (item) {
         // Parse each item as HTML
-        var doc = new DOMParser().parseFromString(item, 'text/html');
-        // Get the text content
-        var decodedValue = doc.body.textContent || "";
-        // Remove leading and trailing characters
-        decodedValue = decodedValue.replace(/[^\w\s]/g, '');
-        // Return the decoded value
-        return decodedValue;
-    });
-}
+            var doc = new DOMParser().parseFromString(item, 'text/html');
+            // Get the text content
+            var decodedValue = doc.body.textContent || "";
+            // Remove leading and trailing characters
+            decodedValue = decodedValue.replace(/[^\w\s]/g, '');
+            // Return the decoded value
+            return decodedValue;
+        });
+    }
 
     let imageClasses = decodeHtmlEntities("{{imageClasses}}")
 
+    // Add a new label for ingredient element in imageClasses.
     for (var i = 0; i < imageClasses.length; i++){
         const inputContainer = document.querySelector('.inputContainer');
         const newInputField = document.createElement('div');
@@ -116,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const displayIngredients = document.getElementById('displayIngredients'); // Create a display area
 
-    document.querySelector('.fluid.ui.button').addEventListener('click', function() {
+    document.getElementById('getIngredients').addEventListener('click', function() {
         const inputFields = document.querySelectorAll('.inputContainer input[type="text"]');
         ingredientsArray.length = 0; // Clear the ingredients array
 
@@ -125,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
         inputFields.forEach(function(inputField) {
             ingredientsArray.push(inputField.value);
         });
-        console.log(ingredientsArray);
+
         const csrftoken = "{{ csrf_token|escapejs }}";
         var data = {'ingredients' : ingredientsArray};
         var URL = "{% url 'displays_recipes' %}";
@@ -143,7 +150,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         console.log(ingredientsArray); // Log the ingredients array
-        displayIngredients.textContent = ingredientsArray.join(', '); // Display the ingredients on the page
+        //displayIngredients.textContent = ingredientsArray.join(', '); // Display the ingredients on the page
+    });
+
+    document.getElementById('goBack').addEventListener('click', function () {
+        // Redirect to the specified URL
+        window.location.href = "{% url 'home' %}";
     });
 });
 </script>
