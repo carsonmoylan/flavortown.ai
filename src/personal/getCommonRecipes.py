@@ -4,6 +4,8 @@ import botocore
 import boto3
 from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.conditions import Key
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 dynamodb = boto3.resource('dynamodb')
@@ -39,7 +41,7 @@ def clean(final, temp):
     return newList
 
 
-def getRecipeIds(ingredient_ids):
+def getRecipeIdsIntersection(ingredient_ids):
   """
   params: ingredient_ids: a list of recipe_ids to see what recipes are shared with all of them
   return: a list of recipe ids that have every ingredient given
@@ -58,6 +60,44 @@ def getRecipeIds(ingredient_ids):
   for i in range(1, len(res)):
     final = clean(final, res[i]['recipe_list'])
   return final
+
+def getRecipeIdsUnion(ingredient_ids):
+  """
+  params: ingredient_ids: a list of ingredient ids
+  return: the union of all recipe ids for the ingredient ids passed
+  """
+  table = dynamodb.Table("ingredients_by_recipes")
+  # get the rows by searching ingredient ids
+  fe = Attr('ingredient_id').is_in(ingredient_ids)
+  response = table.scan(FilterExpression=fe)
+  res = []
+  for item in response['Items']:
+    test = item
+    test['recipe_list'] = item['recipe_list'].split()
+    for recipe in test['recipe_list']:
+      if int(recipe) not in res:
+        res.append(int(recipe))
+  return res
+
+
+def getRecipeIngredients(recipe_ids):
+  """
+  params: recipe_ids: a list of recipe ids
+  return: a dictionary with each recipe id as a key and the value is a the list of ingredient ids for that recipe
+  """
+  table = dynamodb.Table("recipes_by_ingredients")
+  recipes_by_ingredients = {}
+  for recipe_id in recipe_ids:
+    response = table.query(
+      KeyConditionExpression=Key('recipe_id').eq(recipe_id)
+    )
+    recipes_by_ingredients[recipe_id] = {'ingredient_ids': [], 'ingredient_instructions': []}
+    ids = response['Items'][0]['ingredient_list'].split()
+    recipes_by_ingredients[recipe_id]['ingredient_ids'] = [int(x) for x in ids]
+    instructions = response['Items'][0]['ingredient_instructions'].split('---')
+    recipes_by_ingredients[recipe_id]['ingredient_instructions'] = instructions
+    
+  return recipes_by_ingredients
 
 # change s.t. 
 def getRecipeNames(recipe_ids):
@@ -79,13 +119,18 @@ def getRecipeNames(recipe_ids):
 
 def getRecRecipes(ingredients):
   ingredient_ids = getIngredientIds(ingredients)
-  recipe_ids = getRecipeIds(ingredient_ids)
+  recipe_ids = getRecipeIdsIntersection(ingredient_ids)
   recipe_ids = [int(recipe_id) for recipe_id in recipe_ids]
   return getRecipeNames(recipe_ids)
 
 def main():
   ingredient_names = ["banana", "liquid smoke", "pork"]
-  print(getRecRecipes(ingredient_names))
+  ingredient_ids = getIngredientIds(ingredient_names)
+  print(ingredient_ids)
+  union = getRecipeIdsUnion(ingredient_ids)
+  print(union)
+  recipes_ingredients = getRecipeIngredients(union)
+  #print(recipes_ingredients)
 
 if __name__ == '__main__':
   main()
