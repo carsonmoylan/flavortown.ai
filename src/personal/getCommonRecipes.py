@@ -6,7 +6,7 @@ from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.conditions import Key
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import numpy as np
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -84,6 +84,7 @@ def getRecipeIngredients(recipe_ids):
   """
   params: recipe_ids: a list of recipe ids
   return: a dictionary with each recipe id as a key and the value is a the list of ingredient ids for that recipe
+                  and a list of portions per ingredient
   """
   table = dynamodb.Table("recipes_by_ingredients")
   recipes_by_ingredients = {}
@@ -98,6 +99,34 @@ def getRecipeIngredients(recipe_ids):
     recipes_by_ingredients[recipe_id]['ingredient_instructions'] = instructions
     
   return recipes_by_ingredients
+
+def uge_rec(recipes_info, recipe_ingredient_ids):
+    # Extract the ingredient IDs from recipes_info
+    recipes_ingredient_lists = [recipes_info[recipe_id]['ingredient_ids'] for recipe_id in recipes_info]
+
+    # Convert ingredient IDs to strings for TF-IDF vectorization
+    recipes_ingredient_strings = [' '.join(map(str, ingredient_ids)) for ingredient_ids in recipes_ingredient_lists]
+
+    # Create a TF-IDF vectorizer
+    vectorizer = TfidfVectorizer()
+    
+    # Fit and transform the TF-IDF matrix
+    tfidf_matrix = vectorizer.fit_transform(recipes_ingredient_strings)
+    
+    # Transform the input ingredient IDs
+    input_ingredient_string = ' '.join(map(str, recipe_ingredient_ids))
+    input_tfidf = vectorizer.transform([input_ingredient_string])
+
+    # Compute cosine similarity
+    similarity_scores = cosine_similarity(tfidf_matrix, input_tfidf)
+    result_dict = {}
+    recipe_ids = [recipe_id for recipe_id in recipes_info]
+    for recipe_id, score in zip(recipe_ids, similarity_scores):
+      result_dict[recipe_id] = score[0]
+      
+    # Sort recipes based on similarity scores
+    sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
+    print('sorted:', sorted_dict_by_values)
 
 # change s.t. 
 def getRecipeNames(recipe_ids):
@@ -129,8 +158,9 @@ def main():
   print(ingredient_ids)
   union = getRecipeIdsUnion(ingredient_ids)
   print(union)
-  recipes_ingredients = getRecipeIngredients(union)
-  #print(recipes_ingredients)
+  recipes_info = getRecipeIngredients(union)
+  print(recipes_info)
+  print(uge_rec(recipes_info, ingredient_ids))
 
 if __name__ == '__main__':
   main()
