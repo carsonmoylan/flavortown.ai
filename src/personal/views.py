@@ -41,4 +41,5 @@ def display_recipes(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(rec_recipes)
 
+
     return render(request, 'personal/recipesView.html', {})
