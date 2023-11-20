@@ -41,5 +41,6 @@ def display_recipes(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(rec_recipes)
 
-
+    if not rec_recipes:
+        rec_recipes = []
     return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
