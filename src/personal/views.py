@@ -7,6 +7,7 @@ import sys
 from django.conf import settings
 from pathlib import Path
 from . import getCommonRecipes
+import time
 
 # Create your views here.
 def home_screen_view(request):
@@ -40,10 +41,7 @@ def display_recipes(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(rec_recipes)
 
-    try:
-        rec_recipes
-        return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
-    except NameError:
-        print("Waiting on rec_recipes")
-    
-    
+    while rec_recipes is None:
+        time.sleep(1)
+
+    return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
