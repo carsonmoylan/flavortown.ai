@@ -39,7 +39,7 @@ def display_recipes(request):
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
-            print(rec_recipes)
+            print(f"recipes {rec_recipes}")
             return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
 
     if rec_recipes is None:
