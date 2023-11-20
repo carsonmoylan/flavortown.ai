@@ -43,5 +43,6 @@ def display_recipes(request):
 
     while rec_recipes is None:
         time.sleep(1)
+        print("Waiting")
 
     return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
