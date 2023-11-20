@@ -34,15 +34,13 @@ def display_image(request, imageClasses):
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
 
 def display_recipes(request):
-    rec_recipes = None
     if request.method == 'POST':
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(rec_recipes)
+            return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
 
-    while rec_recipes is None:
-        time.sleep(1)
-        print("Waiting")
+    return render(request, 'personal/recipesView.html', {})
 
-    return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
+    
