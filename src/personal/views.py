@@ -7,6 +7,7 @@ import sys
 from django.conf import settings
 from pathlib import Path
 from . import getCommonRecipes
+import time
 
 # Create your views here.
 def home_screen_view(request):
@@ -35,15 +36,10 @@ def display_image(request, imageClasses):
 def display_recipes(request):
     
     if request.method == 'POST':
-        print(request.POST)
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(rec_recipes)
-
-    try:
-        rec_recipes
-        print("Yes")
-    except NameError:
-        rec_recipes = []
+    
+    time.sleep(1)
     return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
