@@ -34,6 +34,7 @@ def display_image(request, imageClasses):
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
 
 def display_recipes(request):
+    rec_recipes = None
     if request.method == 'POST':
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
@@ -41,6 +42,12 @@ def display_recipes(request):
             print(rec_recipes)
             return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})
 
-    return render(request, 'personal/recipesView.html', {})
+    if rec_recipes is None:
+        data = {'recipes' : []}
+    else:
+        data = {'recipes' : rec_recipes}
+    
+
+    return render(request, 'personal/recipesView.html', data)
 
     
