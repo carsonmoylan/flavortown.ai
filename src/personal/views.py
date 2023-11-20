@@ -42,4 +42,4 @@ def display_recipes(request):
             print(rec_recipes)
 
 
-    return render(request, 'personal/recipesView.html', {})
+    return render(request, 'personal/recipesView.html', {'recipes': rec_recipes})

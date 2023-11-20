@@ -12,8 +12,10 @@
         <div class="ui segment">
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
-
-        <p>Tryna send some recipes frrl.</p>
+        
+        {% for recipe in recipes %}
+        <p>{{ recipe }}</p>
+        {% endfor %}
 
     </div>
 </body>
