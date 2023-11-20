@@ -6,7 +6,7 @@ import json
 import sys
 from django.conf import settings
 from pathlib import Path
-#from . import getCommonRecipes
+from . import getCommonRecipes
 
 # Create your views here.
 def home_screen_view(request):
@@ -38,6 +38,7 @@ def display_recipes(request):
         print(request.POST)
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
-            #rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
+            rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
+            print(rec_recipes)
 
     return render(request, 'personal/recipesView.html', {})
