@@ -1,26 +1,26 @@
-# """
-# A script to load data from text files to aws Dynamo DB
-# TO RUN: UNCOMMENT ALL LINES. THIS UPLOADS ALL DATA TO DATABASE
-# NOTE: RUNTIME ~1-2 HOURS FOR ALL DATA TO BE LOADED
-# """
-# import os
-# import csv
-# import boto3
-# import time
+"""
+A script to load data from text files to aws Dynamo DB
+TO RUN: UNCOMMENT ALL LINES. THIS UPLOADS ALL DATA TO DATABASE
+NOTE: RUNTIME ~1-2 HOURS FOR ALL DATA TO BE LOADED
+"""
+import os
+import csv
+import boto3
+import time
 
-# dynamodb = boto3.client('dynamodb', region_name='us-east-2')
+dynamodb = boto3.client('dynamodb', region_name='us-east-2')
 
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# recipe_details_file = os.path.join(current_dir, 'CulinaryDB\\01_Recipe_Details.csv')
-# ingredients_file = os.path.join(current_dir, 'CulinaryDB\\02_Ingredients.csv')
-# compound_ingredients_file = os.path.join(current_dir, 'CulinaryDB\\03_Compound_Ingredients.csv')
-# recipe_integredients_aliases_file = os.path.join(current_dir, 'CulinaryDB\\04_Recipe-Ingredients_Aliases.csv')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+recipe_details_file = os.path.join(current_dir, 'CulinaryDB\\01_Recipe_Details.csv')
+ingredients_file = os.path.join(current_dir, 'CulinaryDB\\02_Ingredients.csv')
+compound_ingredients_file = os.path.join(current_dir, 'CulinaryDB\\03_Compound_Ingredients.csv')
+recipe_integredients_aliases_file = os.path.join(current_dir, 'CulinaryDB\\04_Recipe-Ingredients_Aliases.csv')
 
-# included_sources = ['FOOD_NETWORK']
-# included_recipe_ids = []
+included_sources = ['FOOD_NETWORK']
+included_recipe_ids = []
 
-# # UPLOADED
-# # Populate recipe_details table
+# UPLOADED
+# Populate recipe_details table
 # with open(recipe_details_file, 'r', encoding='utf-8', newline='') as csv_file:
 #   count = 0
 #   table_name = 'recipe_details'
@@ -37,8 +37,8 @@
 #       continue
 #     if row[2] in included_sources:
 #       included_recipe_ids.append(int(row[0]))
-#       #print(data)
-#       response = dynamodb.put_item(TableName=table_name, Item=data)
+      #print(data)
+      #response = dynamodb.put_item(TableName=table_name, Item=data)
 
 
 # # UPLOADED
@@ -113,8 +113,8 @@
 #         st = time.time()
 #       last_recipe_id = current_recipe_id
 
-# # IMPORT DATA TO INGREDIENTS_BY_RECIPES
-# # NOT UPLOADED
+# IMPORT DATA TO INGREDIENTS_BY_RECIPES
+# NOT UPLOADED
 # times = []
 # with open(recipe_integredients_aliases_file, 'r', encoding='utf-8') as csv_file:
 #   count = 0
@@ -138,6 +138,39 @@
 #       'ingredient_id': {'N': str(ingredient_id)},
 #       'num_recipes': {'N': str(len(ingredients_dict[ingredient_id]))},
 #       'recipe_list': {'S': str(' '.join(map(str, ingredients_dict[ingredient_id]))).lower()}
+#     }
+#     print(data)
+#     response = dynamodb.put_item(TableName=table_name, Item=data)
+
+# with open(recipe_integredients_aliases_file, 'r', encoding='utf-8') as csv_file:
+#   count = 0
+#   table_name = 'recipes_by_ingredients'
+#   reader = csv.reader(csv_file)
+#   st = time.time()
+#   recipes_dict = {}
+#   recipes_with_ingredient_instructions = {}
+#   for row in reader:
+#     count += 1
+#     if (count == 1):
+#       continue
+#     if int(row[0]) not in included_recipe_ids:
+#       continue
+#     recipe_id = int(row[0])
+#     if recipe_id not in recipes_dict:
+#       recipes_dict[recipe_id] = {'ingredient_list': None, 'ingredient_instructions': None}
+#       recipes_dict[recipe_id]['ingredient_list'] = [int(row[3])]
+#       recipes_dict[recipe_id]['ingredient_instructions'] = [row[1]]
+#     else:
+#       recipes_dict[recipe_id]['ingredient_list'].append(int(row[3]))
+#       recipes_dict[recipe_id]['ingredient_instructions'].append(row[1])
+#   for recipe_id in recipes_dict:
+#     # print(recipes_dict[recipe_id]['ingredient_list'])
+#     # print(recipes_dict[recipe_id]['ingredient_instructions'])
+#     data = {
+#       'recipe_id': {'N': str(recipe_id)},
+#       'num_ingredients': {'N': str(len(recipes_dict[recipe_id]['ingredient_list']))},
+#       'ingredient_list': {'S': str(' '.join(map(str, recipes_dict[recipe_id]['ingredient_list']))).lower()},
+#       'ingredient_instructions': {'S' : str('---'.join(map(str, recipes_dict[recipe_id]['ingredient_instructions']))).lower()}
 #     }
 #     print(data)
 #     response = dynamodb.put_item(TableName=table_name, Item=data)

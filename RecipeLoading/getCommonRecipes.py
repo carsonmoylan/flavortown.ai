@@ -11,12 +11,10 @@ dynamodb = boto3.resource('dynamodb')
 # test list of ingredients
 
 
-
 def getIngredientIds(ingredients):
-  """
-  param: ingredient_names a list of english words for ingredients
-  return: a list of ingredient ids corresponding to the given ingredients
-  """
+  #param: ingredient_names a list of english words for ingredients
+  #return: a list of ingredient ids corresponding to the given ingredients
+
   ingredient_table = dynamodb.Table('ingredients')
   fe = Attr('ingredient_name').is_in(ingredients)
   response = ingredient_table.scan(FilterExpression=fe)
@@ -24,7 +22,6 @@ def getIngredientIds(ingredients):
   for item in response['Items']:
     ingredient_ids.append(int(item['entity_id']))
   return ingredient_ids
-
 
 def clean(final, temp):
   """
@@ -64,13 +61,14 @@ def getRecipeNames(recipe_ids):
   print(recipe_ids)
   table = dynamodb.Table("recipe_details")
   # get the rows by searching ingredient ids
-  fe = Attr('recipe_id').is_in(recipe_ids)
-  response = table.scan(
-    FilterExpression=fe
-  )
-  recipes = list()
-  for item in response['Items']:
-    recipes.append(item['title'].title())
+  recipes=list()
+  for id in recipe_ids:
+    response = table.query(
+      KeyConditionExpression='recipe_id = :value',
+      ExpressionAttributeValues={':value': id}
+    )
+    name = response['Items'][0]['title']#['title'].title()
+    recipes.append(name)
   return recipes
 
 def getRecRecipes(ingredients):
