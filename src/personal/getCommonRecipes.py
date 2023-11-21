@@ -6,6 +6,7 @@ from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.conditions import Key
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import time
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -136,21 +137,37 @@ def getRecipeNames(recipe_ids):
   return: a list of english names for each recipe
   """
   table = dynamodb.Table("recipe_details")
-  recipes_by_name = []
+  recipes_by_name = {}
   for recipe_id in recipe_ids:
     response = table.query(
       KeyConditionExpression=Key('recipe_id').eq(recipe_id)
     )
-    recipes_by_name.append(response['Items'][0]['title'].title())
+    recipes_by_name[recipe_id] = (response['Items'][0]['title'].title())
   return recipes_by_name
 
 def getRecRecipes(ingredients, n=5):
+  st = time.time()
   ingredient_ids = getIngredientIds(ingredients)
+  print('getIngredientIds runtime: ', time.time()-st)
+  st = time.time()
   recipe_ids = getRecipeIdsUnion(ingredient_ids)
+  print('getRecipeIdsUnion runtime: ', time.time()-st)
+  st = time.time()
   recipes_info = getRecipeIngredients(recipe_ids)
+  print('getRecipeIngredients runtime: ', time.time()-st)
+  st = time.time()
   top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, n)
+  print('get_top_n_recipes runtime: ', time.time()-st)
+  recipes_ids_with_ingredients = {}
+  for recipe_id in top_n_recipe_ids:
+    recipes_ids_with_ingredients[recipe_id] = recipes_info[recipe_id]['ingredient_instructions']
+  st = time.time()
   top_n_recipe_names = getRecipeNames(top_n_recipe_ids)
-  return top_n_recipe_names
+  print('getRecipeNames runtime: ', time.time()-st)
+  recipe_names_with_ingredients = {}
+  for recipe_id in top_n_recipe_names:
+    recipe_names_with_ingredients[top_n_recipe_names[recipe_id]] = recipes_ids_with_ingredients[recipe_id]
+  return list(recipe_names_with_ingredients.keys())
 
 def main():
   ingredient_names = ["banana", "liquid smoke", "pork"]
