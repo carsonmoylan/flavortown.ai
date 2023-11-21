@@ -125,7 +125,6 @@ def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
       
     # Sort recipes based on similarity scores
     sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
-    print('sorted:', sorted_dict_by_values)
 
     # return the top n mathced recipe ids
     return list(sorted_dict_by_values.keys())[:n]
@@ -136,33 +135,35 @@ def getRecipeNames(recipe_ids):
   params: recipe_ids: a list of recipe ids
   return: a list of english names for each recipe
   """
-  print(recipe_ids)
   table = dynamodb.Table("recipe_details")
   recipes_by_name = []
   for recipe_id in recipe_ids:
     response = table.query(
       KeyConditionExpression=Key('recipe_id').eq(recipe_id)
     )
-    recipes_by_name.append(response['Items'][0]['title'].Title())
+    recipes_by_name.append(response['Items'][0]['title'].title())
   return recipes_by_name
 
-def getRecRecipes(ingredients):
+def getRecRecipes(ingredients, n=5):
   ingredient_ids = getIngredientIds(ingredients)
-  recipe_ids = getRecipeIdsIntersection(ingredient_ids)
-  recipe_ids = [int(recipe_id) for recipe_id in recipe_ids]
-  return getRecipeNames(recipe_ids)
+  recipe_ids = getRecipeIdsUnion(ingredient_ids)
+  recipes_info = getRecipeIngredients(recipe_ids)
+  top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, n)
+  top_n_recipe_names = getRecipeNames(top_n_recipe_ids)
+  return top_n_recipe_names
 
 def main():
   ingredient_names = ["banana", "liquid smoke", "pork"]
-  ingredient_ids = getIngredientIds(ingredient_names)
-  print(ingredient_ids)
-  union = getRecipeIdsUnion(ingredient_ids)
-  print(union)
-  recipes_info = getRecipeIngredients(union)
-  print(recipes_info)
-  top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, 5)
-  print(top_n_recipe_ids)
-  print(getRecipeNames(top_n_recipe_ids))
+  # ingredient_ids = getIngredientIds(ingredient_names)
+  # print(ingredient_ids)
+  # union = getRecipeIdsUnion(ingredient_ids)
+  # print(union)
+  # recipes_info = getRecipeIngredients(union)
+  # print(recipes_info)
+  # top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, 5)
+  # print(top_n_recipe_ids)
+  # print(getRecipeNames(top_n_recipe_ids))
+  print(getRecRecipes(ingredient_names))
 
 if __name__ == '__main__':
   main()
