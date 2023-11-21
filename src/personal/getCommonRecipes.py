@@ -6,7 +6,6 @@ from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.conditions import Key
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -100,7 +99,7 @@ def getRecipeIngredients(recipe_ids):
     
   return recipes_by_ingredients
 
-def uge_rec(recipes_info, recipe_ingredient_ids):
+def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
     # Extract the ingredient IDs from recipes_info
     recipes_ingredient_lists = [recipes_info[recipe_id]['ingredient_ids'] for recipe_id in recipes_info]
 
@@ -128,6 +127,9 @@ def uge_rec(recipes_info, recipe_ingredient_ids):
     sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
     print('sorted:', sorted_dict_by_values)
 
+    # return the top n mathced recipe ids
+    return list(sorted_dict_by_values.keys())[:n]
+
 # change s.t. 
 def getRecipeNames(recipe_ids):
   """
@@ -136,15 +138,13 @@ def getRecipeNames(recipe_ids):
   """
   print(recipe_ids)
   table = dynamodb.Table("recipe_details")
-  # get the rows by searching ingredient ids
-  fe = Attr('recipe_id').is_in(recipe_ids)
-  response = table.scan(
-    FilterExpression=fe
-  )
-  recipes = list()
-  for item in response['Items']:
-    recipes.append(item['title'].title())
-  return recipes
+  recipes_by_name = []
+  for recipe_id in recipe_ids:
+    response = table.query(
+      KeyConditionExpression=Key('recipe_id').eq(recipe_id)
+    )
+    recipes_by_name.append(response['Items'][0]['title'].Title())
+  return recipes_by_name
 
 def getRecRecipes(ingredients):
   ingredient_ids = getIngredientIds(ingredients)
@@ -160,7 +160,9 @@ def main():
   print(union)
   recipes_info = getRecipeIngredients(union)
   print(recipes_info)
-  print(uge_rec(recipes_info, ingredient_ids))
+  top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, 5)
+  print(top_n_recipe_ids)
+  print(getRecipeNames(top_n_recipe_ids))
 
 if __name__ == '__main__':
   main()
