@@ -26,4 +26,5 @@ urlpatterns = [
     path('display/', display_image, name='display_image'),
     path('display/<str:imageClasses>/', display_image, name='display_image_with_classes'),
     path('recipes/', display_recipes, name='displays_recipes'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # New
+    path('recipes/<str:recipeList>/', display_recipes, name='displays_recipes_with_list'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
