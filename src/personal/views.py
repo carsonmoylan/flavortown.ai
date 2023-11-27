@@ -31,8 +31,8 @@ def display_image(request):
     imageClasses = request.session.get('image_classes', '').split(',')
     uploaded_image = Food.objects.last()
 
-    print(request)
     if request.method == 'POST':
+        print(request)
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
             print(ingredients)
