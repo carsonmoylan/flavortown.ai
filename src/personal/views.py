@@ -28,7 +28,7 @@ def home_screen_view(request):
     return render(request, "personal/home.html", {'imageForm' : ImageForm})
 
 def display_image(request):
-    imageClasses = request.session['image_classes'].split(',')
+    imageClasses = request.session.get('image_classes', '').split(',')
     uploaded_image = Food.objects.last()
 
     if request.method == 'POST':
@@ -37,12 +37,14 @@ def display_image(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
             request.session['recipes'] = rec_recipes
+            # Need to wait on rec_recipes still. 
+            print(rec_recipes)
             return redirect('display_recipes')
             
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
 
 def display_recipes(request):
-    recipes = request.session['recipes']
+    recipes = request.session.get('recipes', [])
 
     return render(request, 'personal/recipesView.html', {'recipes': recipes})
 
