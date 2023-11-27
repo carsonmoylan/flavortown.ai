@@ -18,10 +18,11 @@
             Go Back!
         </button>
         
-        {% for recipe in recipes %}
-        <p>{{ recipe }}</p>
-        <p>{{ recipes[recipe] }}</p>
+        {% for recipe, details in recipes.items() %}
+            <p>{{ recipe }}</p>
+            <p>{{ details }}</p>
         {% endfor %}
+
 
     </div>
 </body>
