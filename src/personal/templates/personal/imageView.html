@@ -23,9 +23,7 @@
     {% endif %}
     
     <div class = "ui segment">
-        <h3>
-            Ingredients
-        </h3>
+        <h3>Ingredients</h3>
         <div class="inputContainer">
             <br>
             <button class="ui compact icon button" id="addInput"><i class="plus icon"></i></button>
@@ -157,6 +155,19 @@ document.addEventListener('DOMContentLoaded', function () {
         // Redirect to the specified URL
         window.location.href = "{% url 'home' %}";
     });
+
+
+    // Initialize Semantic UI search for the input fields
+    $('.ui.search').search({
+        source: ingredientList,
+        searchFields: ['title'],
+        onSelect: function(result) {
+            const inputField = document.querySelector(`#${result.id} input`);
+            inputField.value = result.title;
+        }
+    });
+    
+
 });
 
 
