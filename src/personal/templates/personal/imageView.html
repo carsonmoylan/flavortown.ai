@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-CSRFToken': csrftoken,
             },
             success: function(response) {
-                console.log("AJAX success");
+                window.location.href = "{% url 'display_recipes' %}";
             },
         });
 
