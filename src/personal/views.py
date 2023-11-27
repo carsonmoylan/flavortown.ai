@@ -32,15 +32,11 @@ def display_image(request):
     uploaded_image = Food.objects.last()
 
     if request.method == 'POST':
-        print(request)
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
-            print(ingredients)
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
             request.session['recipes'] = rec_recipes
-            # Need to wait on rec_recipes still. 
-            print(rec_recipes)
             return redirect('display_recipes')
             
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
