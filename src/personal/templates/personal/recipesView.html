@@ -18,9 +18,13 @@
             Go Back!
         </button>
         
-        {% for recipe, details in recipes.items() %}
-            <p>{{ recipe }}</p>
-            <p>{{ details }}</p>
+        {% for recipe, details in recipes.items %}
+            <p><strong>{{ recipe }}</strong></p>
+            <ul>
+                {% for key, value in details.items %}
+                    <li><strong>{{ key }}:</strong> {{ value }}</li>
+                {% endfor %}
+            </ul>
         {% endfor %}
 
 
