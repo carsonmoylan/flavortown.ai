@@ -12,6 +12,11 @@
         <div class="ui segment">
             <h1>Welcome to FlavorTown.AI</h1>
         </div>
+
+        <button class="fluid ui button" id="goBack">
+            <i class="reply icon"></i>
+            Go Back!
+        </button>
         
         {% for recipe in recipes %}
         <p>{{ recipe }}</p>
@@ -19,3 +24,10 @@
 
     </div>
 </body>
+
+<script>
+    document.getElementById('goBack').addEventListener('click', function () {
+        // Redirect to the specified URL
+        window.location.href = "{% url 'home' %}";
+    });
+</script>
