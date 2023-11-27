@@ -34,6 +34,7 @@ def display_image(request):
     if request.method == 'POST':
         if 'ingredients[]' in request.POST:
             ingredients = request.POST.getlist('ingredients[]')
+            print(ingredients)
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
             request.session['recipes'] = rec_recipes
