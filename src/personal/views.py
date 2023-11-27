@@ -37,6 +37,7 @@ def display_image(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
             request.session['recipes'] = rec_recipes
+            print("need to redirect")
             return redirect('display_recipes')
             
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
