@@ -21,8 +21,8 @@
         {% for recipe, details in recipes.items %}
             <p><strong>{{ recipe }}</strong></p>
             <ul>
-                {% for key, value in details.items %}
-                    <li><strong>{{ key }}:</strong> {{ value }}</li>
+                {% for value in details %}
+                    <li>{{ value }}</li>
                 {% endfor %}
             </ul>
         {% endfor %}
