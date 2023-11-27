@@ -19,16 +19,16 @@ def home_screen_view(request):
             imageForm.save()
             imageInfo = getImageInfo(imageName) # Returns array of class names.
             array_param = ','.join(imageInfo)
+            request.session['image_classes'] = array_param
 
-            return redirect('display_image_with_classes', imageClasses=array_param)
+            return redirect('display_image')
     else:
         imageForm = ImageForm()
-
     
     return render(request, "personal/home.html", {'imageForm' : ImageForm})
 
-def display_image(request, imageClasses):
-    imageClasses = imageClasses.split(',')
+def display_image(request):
+    imageClasses = request.session['image_classes'].split(',')
     uploaded_image = Food.objects.last()
 
     if request.method == 'POST':
@@ -36,12 +36,14 @@ def display_image(request, imageClasses):
             ingredients = request.POST.getlist('ingredients[]')
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
-            return redirect('display_recipes', recipes=rec_recipes)
+            request.session['recipes'] = rec_recipes
+            return redirect('display_recipes')
             
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
 
-def display_recipes(request, recipes):
-    
+def display_recipes(request):
+    recipes = request.session['recipes']
+
     return render(request, 'personal/recipesView.html', {'recipes': recipes})
 
 

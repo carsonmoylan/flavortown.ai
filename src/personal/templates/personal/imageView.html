@@ -135,9 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const csrftoken = "{{ csrf_token|escapejs }}";
         var data = {'ingredients' : ingredientsArray};
-        let array_param = '';
-        var URL = "{% url 'display_image_with_classes' %}?imageClasses=" + array_param.join(',');
-
+        var URL = "{% url 'display_recipes' %}";
 
         $.ajax({
             url: URL,
