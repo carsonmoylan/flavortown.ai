@@ -61,6 +61,7 @@ def getRecipeIdsIntersection(ingredient_ids):
     final = clean(final, res[i]['recipe_list'])
   return final
 
+
 def getRecipeIdsUnion(ingredient_ids):
   """
   params: ingredient_ids: a list of ingredient ids
@@ -167,7 +168,7 @@ def getRecRecipes(ingredients, n=5):
   recipe_names_with_ingredients = {}
   for recipe_id in top_n_recipe_names:
     recipe_names_with_ingredients[top_n_recipe_names[recipe_id]] = recipes_ids_with_ingredients[recipe_id]
-  return list(recipe_names_with_ingredients.keys())
+  return recipe_names_with_ingredients
 
 def main():
   ingredient_names = ["banana", "liquid smoke", "pork"]
