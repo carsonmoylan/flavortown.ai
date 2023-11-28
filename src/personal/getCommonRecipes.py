@@ -141,7 +141,6 @@ def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
     
   # Sort recipes based on similarity scores
   sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
-  print(sorted_dict_by_values)
 
   # return the top n mathced recipe ids
   return list(sorted_dict_by_values.keys())[:n]
