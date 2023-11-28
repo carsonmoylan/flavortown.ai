@@ -40,7 +40,7 @@ def display_image(request):
             request.session['recipes'] = rec_recipes
             
             # Delete image after use
-            image_path = uploaded_image.image_field_name.path
+            image_path = uploaded_image.image.path
             default_storage.delete(image_path)
 
             
