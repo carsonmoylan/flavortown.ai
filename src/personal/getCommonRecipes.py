@@ -80,26 +80,35 @@ def getRecipeIdsUnion(ingredient_ids):
         res.append(int(recipe))
   return res
 
-
 def getRecipeIngredients(recipe_ids):
-  """
-  params: recipe_ids: a list of recipe ids
-  return: a dictionary with each recipe id as a key and the value is a the list of ingredient ids for that recipe
-                  and a list of portions per ingredient
-  """
-  table = dynamodb.Table("recipes_by_ingredients")
-  recipes_by_ingredients = {}
-  for recipe_id in recipe_ids:
-    response = table.query(
-      KeyConditionExpression=Key('recipe_id').eq(recipe_id)
-    )
-    recipes_by_ingredients[recipe_id] = {'ingredient_ids': [], 'ingredient_instructions': []}
-    ids = response['Items'][0]['ingredient_list'].split()
-    recipes_by_ingredients[recipe_id]['ingredient_ids'] = [int(x) for x in ids]
-    instructions = response['Items'][0]['ingredient_instructions'].split('---')
-    recipes_by_ingredients[recipe_id]['ingredient_instructions'] = instructions
-    
-  return recipes_by_ingredients
+    print(len(recipe_ids))
+    #dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table("recipes_by_ingredients")
+
+    chunk_size = 100  # Adjust the chunk size based on your requirements
+
+    # Split recipe_ids into chunks
+    recipe_id_chunks = [recipe_ids[i:i + chunk_size] for i in range(0, len(recipe_ids), chunk_size)]
+
+    # Initialize the result dictionary
+    recipes_by_ingredients = {recipe_id: {'ingredient_ids': [], 'ingredient_instructions': []} for recipe_id in recipe_ids}
+
+    # Perform scan operations for each chunk
+    for chunk in recipe_id_chunks:
+        print(len(chunk))
+        response = table.scan(
+            FilterExpression=Attr('recipe_id').is_in([int(id) for id in chunk])
+        )
+
+        items = response['Items']
+
+        # Populate the result dictionary based on the scan results
+        for item in items:
+            recipe_id = item['recipe_id']
+            recipes_by_ingredients[recipe_id]['ingredient_ids'] = [int(x) for x in item.get('ingredient_list', '').split()]
+            recipes_by_ingredients[recipe_id]['ingredient_instructions'] = item.get('ingredient_instructions', '').split('---')
+
+    return recipes_by_ingredients
 
 def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
     # Extract the ingredient IDs from recipes_info
