@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, reverse
+from django.core.files.storage import default_storage
 from .forms import ImageForm, IngredientForm
 from .models import Food
 from .imageClassification import getImageInfo
@@ -37,6 +38,11 @@ def display_image(request):
             rec_recipes = getCommonRecipes.getRecRecipes(ingredients)
             print(f"recipes {rec_recipes}")
             request.session['recipes'] = rec_recipes
+            
+            # Delete image after use
+            image_path = uploaded_image.image.path
+            default_storage.delete(image_path)
+
             
     return render(request, 'personal/imageView.html', {'uploaded_image': uploaded_image, 'ingredientForm' : IngredientForm, 'imageClasses' : imageClasses})
 
