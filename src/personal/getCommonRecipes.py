@@ -149,15 +149,34 @@ def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
 def getRecipeNames(recipe_ids):
   """
   params: recipe_ids: a list of recipe ids
-  return: a list of english names for each recipe
+  return: a list of English names for each recipe
   """
   table = dynamodb.Table("recipe_details")
   recipes_by_name = {}
-  for recipe_id in recipe_ids:
-    response = table.query(
-      KeyConditionExpression=Key('recipe_id').eq(recipe_id)
-    )
-    recipes_by_name[recipe_id] = (response['Items'][0]['title'].title())
+
+  last_evaluated_key = None
+
+  while True:
+    # Use Scan and filter by recipe_ids
+    if last_evaluated_key:
+      response = table.scan(
+        FilterExpression=Attr('recipe_id').is_in(recipe_ids),
+        ExclusiveStartKey=last_evaluated_key
+      )
+    else:
+      response = table.scan(
+        FilterExpression=Attr('recipe_id').is_in(recipe_ids)
+      )
+
+    for item in response['Items']:
+      recipe_id = int(item['recipe_id'])
+      recipes_by_name[recipe_id] = item['title'].title()
+
+    last_evaluated_key = response.get('LastEvaluatedKey')
+
+    if not last_evaluated_key:
+      break  # No more pages to scan
+
   return recipes_by_name
 
 
@@ -186,7 +205,7 @@ def getRecRecipes(ingredients, n=5):
   return recipe_names_with_ingredients
 
 def main():
-  ingredient_names = ["banana", "liquid smoke", "pork"]
+  ingredient_names = ["tomato"]
   # ingredient_ids = getIngredientIds(ingredient_names)
   # print(ingredient_ids)
   # union = getRecipeIdsUnion(ingredient_ids)
