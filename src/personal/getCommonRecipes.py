@@ -10,10 +10,6 @@ import time
 
 dynamodb = boto3.resource('dynamodb')
 
-# test list of ingredients
-
-
-
 def getIngredientIds(ingredients):
   """
   param: ingredient_names a list of english words for ingredients
@@ -81,66 +77,76 @@ def getRecipeIdsUnion(ingredient_ids):
   return res
 
 def getRecipeIngredients(recipe_ids):
-    print(len(recipe_ids))
-    #dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table("recipes_by_ingredients")
+  table = dynamodb.Table('recipes_by_ingredients')
 
-    chunk_size = 100  # Adjust the chunk size based on your requirements
+  # Initialize the result dictionary
+  recipes_by_ingredients = {}
 
-    # Split recipe_ids into chunks
-    recipe_id_chunks = [recipe_ids[i:i + chunk_size] for i in range(0, len(recipe_ids), chunk_size)]
+  # Initialize the ExclusiveStartKey to None for the initial scan
+  exclusive_start_key = None
 
-    # Initialize the result dictionary
-    recipes_by_ingredients = {recipe_id: {'ingredient_ids': [], 'ingredient_instructions': []} for recipe_id in recipe_ids}
+  while True:
+    # Perform scan operation with ExclusiveStartKey
+    if exclusive_start_key is not None:
+      response = table.scan(
+          ExclusiveStartKey=exclusive_start_key
+      )
+    else:
+      response = table.scan()
 
-    # Perform scan operations for each chunk
-    for chunk in recipe_id_chunks:
-        print(len(chunk))
-        response = table.scan(
-            FilterExpression=Attr('recipe_id').is_in([int(id) for id in chunk])
-        )
+    items = response.get('Items', [])
 
-        items = response['Items']
+    # Process the items in the current response
+    for item in items:
+      recipe_id = int(item['recipe_id'])
+      if recipe_id in recipe_ids:
+        # Process only the items with recipe_ids in the specified list
+        if recipe_id not in recipes_by_ingredients:
+          recipes_by_ingredients[recipe_id] = {'ingredient_ids': [], 'ingredient_instructions': []}
+        recipes_by_ingredients[recipe_id]['ingredient_ids'] = [int(x) for x in item['ingredient_list'].split(' ')]
+        recipes_by_ingredients[recipe_id]['ingredient_instructions'] = [instruction for instruction in item['ingredient_instructions'].split('---')]
 
-        # Populate the result dictionary based on the scan results
-        for item in items:
-            recipe_id = item['recipe_id']
-            recipes_by_ingredients[recipe_id]['ingredient_ids'] = [int(x) for x in item.get('ingredient_list', '').split()]
-            recipes_by_ingredients[recipe_id]['ingredient_instructions'] = item.get('ingredient_instructions', '').split('---')
+    # If there is no LastEvaluatedKey, break out of the loop
+    if 'LastEvaluatedKey' not in response:
+      break
 
-    return recipes_by_ingredients
+    # Set the ExclusiveStartKey for the next iteration
+    exclusive_start_key = response['LastEvaluatedKey']
+
+  return recipes_by_ingredients
 
 def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
-    # Extract the ingredient IDs from recipes_info
-    recipes_ingredient_lists = [recipes_info[recipe_id]['ingredient_ids'] for recipe_id in recipes_info]
+  # Extract the ingredient IDs from recipes_info
+  recipes_ingredient_lists = [recipes_info[recipe_id]['ingredient_ids'] for recipe_id in recipes_info]
 
-    # Convert ingredient IDs to strings for TF-IDF vectorization
-    recipes_ingredient_strings = [' '.join(map(str, ingredient_ids)) for ingredient_ids in recipes_ingredient_lists]
+  # Convert ingredient IDs to strings for TF-IDF vectorization
+  recipes_ingredient_strings = [' '.join(map(str, ingredient_ids)) for ingredient_ids in recipes_ingredient_lists]
 
-    # Create a TF-IDF vectorizer
-    vectorizer = TfidfVectorizer()
+  # Create a TF-IDF vectorizer
+  vectorizer = TfidfVectorizer()
+  
+  # Fit and transform the TF-IDF matrix
+  tfidf_matrix = vectorizer.fit_transform(recipes_ingredient_strings)
+  
+  # Transform the input ingredient IDs
+  input_ingredient_string = ' '.join(map(str, recipe_ingredient_ids))
+  input_tfidf = vectorizer.transform([input_ingredient_string])
+
+  # Compute cosine similarity
+  similarity_scores = cosine_similarity(tfidf_matrix, input_tfidf)
+  result_dict = {}
+  recipe_ids = [recipe_id for recipe_id in recipes_info]
+  for recipe_id, score in zip(recipe_ids, similarity_scores):
+    result_dict[recipe_id] = score[0]
     
-    # Fit and transform the TF-IDF matrix
-    tfidf_matrix = vectorizer.fit_transform(recipes_ingredient_strings)
-    
-    # Transform the input ingredient IDs
-    input_ingredient_string = ' '.join(map(str, recipe_ingredient_ids))
-    input_tfidf = vectorizer.transform([input_ingredient_string])
+  # Sort recipes based on similarity scores
+  sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
+  print(sorted_dict_by_values)
 
-    # Compute cosine similarity
-    similarity_scores = cosine_similarity(tfidf_matrix, input_tfidf)
-    result_dict = {}
-    recipe_ids = [recipe_id for recipe_id in recipes_info]
-    for recipe_id, score in zip(recipe_ids, similarity_scores):
-      result_dict[recipe_id] = score[0]
-      
-    # Sort recipes based on similarity scores
-    sorted_dict_by_values = dict(sorted(result_dict.items(), key=lambda item: item[1], reverse=True))
+  # return the top n mathced recipe ids
+  return list(sorted_dict_by_values.keys())[:n]
 
-    # return the top n mathced recipe ids
-    return list(sorted_dict_by_values.keys())[:n]
 
-# change s.t. 
 def getRecipeNames(recipe_ids):
   """
   params: recipe_ids: a list of recipe ids
@@ -154,6 +160,7 @@ def getRecipeNames(recipe_ids):
     )
     recipes_by_name[recipe_id] = (response['Items'][0]['title'].title())
   return recipes_by_name
+
 
 def getRecRecipes(ingredients, n=5):
   st = time.time()
