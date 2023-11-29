@@ -14,7 +14,7 @@ import time
 def home_screen_view(request):
     if request.method == 'POST':
         imageForm = ImageForm(request.POST, request.FILES)
-        imageName = request.FILES[u'image'].name
+        imageName = request.FILES[u'image'].name.replace(" ", "_")
 
         if imageForm.is_valid():
             imageForm.save()
