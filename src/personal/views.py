@@ -18,7 +18,7 @@ def home_screen_view(request):
 
         if imageForm.is_valid():
             uploaded_file = request.FILES['image']
-            uploaded_file.name = slugify(uploaded_file.name)
+            uploaded_file.name = "image.jpg"
             imageName = uploaded_file.name
             imageForm.save()
             imageInfo = getImageInfo(imageName) # Returns array of class names.
