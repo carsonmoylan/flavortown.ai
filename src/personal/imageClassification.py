@@ -6,12 +6,10 @@ rf = Roboflow(api_key="QggEFMO1t9ORFmzcnp7Y")
 project = rf.workspace().project("classificationfridge")
 model = project.version(1).model
 
-source = Path(settings.MEDIA_ROOT, 'images')
-
 # infer on a local image
 def getImageInfo(image):
     classNames = set()
-    imageLoc = Path(source, image)
+    imageLoc = Path(settings.MEDIA_ROOT, image)
     predictions = model.predict(str(imageLoc), confidence=40, overlap=30).json()['predictions']
     for prediction in predictions:
         classNames.add(prediction["class"])

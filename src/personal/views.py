@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.core.files.storage import default_storage
+from django.utils.text import slugify
 from .forms import ImageForm, IngredientForm
 from .models import Food
 from .imageClassification import getImageInfo
@@ -14,10 +15,11 @@ import time
 def home_screen_view(request):
     if request.method == 'POST':
         imageForm = ImageForm(request.POST, request.FILES)
-        imageName = request.FILES[u'image'].name
 
         if imageForm.is_valid():
             imageForm.save()
+            imageName =  Food.objects.last().image.name
+            print(imageName)
             imageInfo = getImageInfo(imageName) # Returns array of class names.
             array_param = ','.join(imageInfo)
             request.session['image_classes'] = array_param
