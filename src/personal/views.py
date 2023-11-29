@@ -19,6 +19,7 @@ def home_screen_view(request):
         if imageForm.is_valid():
             imageForm.save()
             imageName =  Food.objects.last().image.name
+            print(imageName)
             imageInfo = getImageInfo(imageName) # Returns array of class names.
             array_param = ','.join(imageInfo)
             request.session['image_classes'] = array_param
