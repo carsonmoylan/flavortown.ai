@@ -17,10 +17,8 @@ def home_screen_view(request):
         imageForm = ImageForm(request.POST, request.FILES)
 
         if imageForm.is_valid():
-            uploaded_file = request.FILES['image']
-            uploaded_file.name = "image.jpg"
-            imageName = uploaded_file.name
             imageForm.save()
+            imageName =  Food.objects.last().name
             imageInfo = getImageInfo(imageName) # Returns array of class names.
             array_param = ','.join(imageInfo)
             request.session['image_classes'] = array_param
