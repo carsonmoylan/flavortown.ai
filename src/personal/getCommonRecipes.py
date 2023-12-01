@@ -116,6 +116,7 @@ def getRecipeIngredients(recipe_ids):
   return recipes_by_ingredients
 
 def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
+  
   # Extract the ingredient IDs from recipes_info
   recipes_ingredient_lists = [recipes_info[recipe_id]['ingredient_ids'] for recipe_id in recipes_info]
 
@@ -124,7 +125,7 @@ def get_top_n_recipes(recipes_info, recipe_ingredient_ids, n):
 
   # Create a TF-IDF vectorizer
   vectorizer = TfidfVectorizer()
-  
+
   # Fit and transform the TF-IDF matrix
   tfidf_matrix = vectorizer.fit_transform(recipes_ingredient_strings)
   
@@ -191,6 +192,8 @@ def getRecRecipes(ingredients, n=5):
   recipes_info = getRecipeIngredients(recipe_ids)
   print('getRecipeIngredients runtime: ', time.time()-st)
   st = time.time()
+  if (len(recipes_info) == 0):
+    return {}
   top_n_recipe_ids = get_top_n_recipes(recipes_info, ingredient_ids, n)
   print('get_top_n_recipes runtime: ', time.time()-st)
   recipes_ids_with_ingredients = {}

@@ -17,17 +17,18 @@
             <i class="reply icon"></i>
             Go Back!
         </button>
-        
-        {% for recipe, details in recipes.items %}
-            <p><strong>{{ recipe }}</strong></p>
-            <ul>
-                {% for value in details %}
-                    <li>{{ value }}</li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-
-
+        {% if len(recipes) == 0 %}
+            <p><strong>No Recipes Found!</strong></p>
+        {% else %}
+            {% for recipe, details in recipes.items() %}
+                <p><strong>{{ recipe }}</strong></p>
+                <ul>
+                    {% for value in details %}
+                        <li>{{ value }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endif %}
     </div>
 </body>
 
