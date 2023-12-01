@@ -50,7 +50,7 @@ def display_image(request):
 
 def display_recipes(request):
     recipes = request.session.get('recipes', [])
-
+    print(recipes)
     return render(request, 'personal/recipesView.html', {'recipes': recipes})
 
 
